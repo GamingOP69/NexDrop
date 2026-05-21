@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id                 String        @id @default(uuid())
+  email              String        @unique
+  passwordHash       String
+  fullName           String?
+  avatarUrl          String?
+  role               Role          @default(USER)
+  storageUsed        BigInt        @default(0)
+  storageLimit       BigInt        @default(53687091200)
+  isVerified         Boolean       @default(false)
+  verificationToken  String?       @unique
+  resetToken         String?       @unique
+  resetTokenExpiresAt DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  sessions           Session[]
+  files              File[]
+  sharesCreated      ShareLink[]   @relation("ShareCreatedBy")
+  events             AnalyticsEvent[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  tokenHash    String   @unique
+  deviceInfo   String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model File {
+  id              String      @id @default(uuid())
+  userId          String
+  fileName        String
+  originalName    String
+  mimeType        String
+  size            BigInt      @default(0)
+  storagePath     String
+  isFolder        Boolean     @default(false)
+  isPublic       Boolean     @default(false)
+  downloadCount   Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareLink       ShareLink?
+
+  @@index([userId])
+}
+
+model ShareLink {
+  id                 String   @id @default(uuid())
+  fileId             String   @unique
+  token              String   @unique
+  isPasswordProtected Boolean  @default(false)
+  passwordHash       String?
+  expiresAt          DateTime?
+  maxDownloads       Int?
+  currentDownloads   Int      @default(0)
+  createdById        String?
+  createdAt          DateTime @default(now())
+
+  file               File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdBy          User?    @relation("ShareCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([token])
+}
+
+model UploadChunk {
+  id         String   @id @default(uuid())
+  fileId     String
+  chunkIndex Int
+  chunkPath  String
+  size       BigInt
+  createdAt  DateTime @default(now())
+
+  @@unique([fileId, chunkIndex])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  userId    String?
+  eventType String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, eventType])
+}
