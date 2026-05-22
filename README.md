@@ -15,6 +15,28 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 - Lint: `npm run lint`
 - Start: `npm run start:prod`
 
+## Environment variables
+The repo uses `lib/env.ts` to normalize and validate environment settings.
+
+- Most environment variables are runtime-only.
+- Build-time success does not require all `.env` values because optional vars have safe defaults and request-origin URL generation is used instead of `APP_URL` at build time.
+- For a real production deployment, you must still provide runtime secrets and database settings in `.env`.
+
+Required runtime variables for production:
+- `NODE_ENV=production`
+- `DATABASE_URL`
+- `JWT_ACCESS_SECRET`
+- `JWT_REFRESH_SECRET`
+- `APP_URL`
+
+Optional features:
+- SMTP/email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`
+- S3 storage: `S3_ENABLED`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_ENDPOINT`
+- Sentry: `SENTRY_DSN`, `SENTRY_ENVIRONMENT`
+
+Runtime validation note:
+- The runtime helper `NEXDROP_RUNTIME=1` is used in the Docker runtime stage to enforce required production envs after build. It is not required for building the app.
+
 **Commands**
 
 - **Install (local):** `npm install`
@@ -52,8 +74,7 @@ worker: npm run email:worker
 **Runtime notes**
 
 - The app enforces required production environment variables at runtime only when `NEXDROP_RUNTIME=1` is set (the provided `Dockerfile` sets this). This avoids build-time failures during static generation while ensuring secrets are validated in production.
-- Prefer Debian-based Node images (the `Dockerfile` uses `node:20-bullseye-slim`) or ensure `libssl1.1` is installed in your build/runtime image to avoid Prisma/libssl compatibility errors.
-
+- Prefer Debian-based Node images (the `Dockerfile` uses `node:20-bullseye-slim`) or ensure `libssl1.1` is installed in your build/runtime image to avoid Prisma/libssl compatibility errors.- `npm run build` does not require a `.env` file if you only need to build static and dynamic routes; the repo uses safe defaults for missing optional values. However, a runtime `.env` is still required to run the app with your real database and credentials.
 ## Tests
 - Unit tests: `npm test`
 - E2E tests: `npm run test:e2e`
