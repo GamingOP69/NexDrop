@@ -1,15 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ResetPasswordPage() {
-  const params = useSearchParams();
   const router = useRouter();
-  const token = params.get('token') || '';
+  const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      setToken(params.get('token') || '');
+    } catch (e) {
+      setToken('');
+    }
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

@@ -29,7 +29,8 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
       form.append('chunkIndex', String(index));
       form.append('totalChunks', String(totalChunks));
 
-      const res = await fetch('/api/files/upload', { method: 'POST', body: form });
+      const csrf = document.cookie.split('; ').find((c) => c.startsWith('nd_csrf='))?.split('=')[1] || '';
+      const res = await fetch('/api/files/upload', { method: 'POST', body: form, headers: { 'x-csrf-token': csrf } });
       const data = await res.json();
       if (!res.ok) {
         setBusy(false);
@@ -46,13 +47,32 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
     onUploaded?.();
   }
 
+  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0];
+    if (f) setFile(f);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+  }
+
   return (
     <div className="card space-y-4 p-5">
       <div>
         <h2 className="text-lg font-semibold">Upload files</h2>
         <p className="text-sm text-slate-300">Chunked upload in one app, no separate backend required.</p>
       </div>
-      <input className="field" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('file-input')?.click(); }}
+        className="border-dashed border-2 border-slate-700 p-4 rounded">
+        <input id="file-input" className="field" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <p className="text-sm text-slate-400">Or drag & drop a file here</p>
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         <button disabled={!file || busy} className="btn btn-primary" onClick={uploadSelected} type="button">
           {busy ? 'Uploading...' : 'Upload'}

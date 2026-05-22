@@ -31,9 +31,12 @@ export default function RegisterPage() {
     <main className="container py-10">
       <form onSubmit={submit} className="card mx-auto max-w-md space-y-4 p-6">
         <h1 className="text-2xl font-semibold">Create account</h1>
-        <input className="field" placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        <input className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <label className="sr-only" htmlFor="fullName">Full name</label>
+        <input id="fullName" name="fullName" className="field" placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        <label className="sr-only" htmlFor="email">Email</label>
+        <input id="email" name="email" className="field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label className="sr-only" htmlFor="password">Password</label>
+        <input id="password" name="password" className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         {error ? <p className="text-sm text-red-300">{error}</p> : null}
         <button disabled={busy} className="btn btn-primary w-full">{busy ? 'Creating...' : 'Create account'}</button>
         <p className="text-sm text-slate-300">Already have an account? <Link className="underline" href="/login">Login</Link></p>

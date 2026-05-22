@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexdrop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-nexdrop}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  app:
+    build: .
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./storage:/app/storage
+
+  nginx:
+    image: nginx:stable
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+    environment:
+      - DOMAIN=${DOMAIN}
+      - DOMAIN_WWW=${DOMAIN_WWW}
+    volumes:
+      - ./deploy/nginx/nginx.conf.template:/etc/nginx/conf.d/default.conf.template:ro
+      - ./deploy/certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
+    command: /bin/sh -c "envsubst '$$DOMAIN $$DOMAIN_WWW' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    volumes:
+      - ./deploy/certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
+    entrypoint: ['/bin/sh', '-c']
+    command: "certbot certonly --webroot -w /var/www/certbot --email ${LETSENCRYPT_EMAIL:-admin@example.com} --agree-tos --no-eff-email -d ${DOMAIN:-yourdomain.com} -d ${DOMAIN_WWW:-www.yourdomain.com} --rsa-key-size 4096"
+
+volumes:
+  pgdata:
+  redisdata:
+  webroot:

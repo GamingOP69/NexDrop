@@ -6,14 +6,25 @@ import { currentUser } from '@/lib/auth';
 import { humanSize } from '@/lib/utils';
 import { redirect } from 'next/navigation';
 
-export default async function DashboardPage() {
+type Props = {
+  searchParams?: { [key: string]: string | undefined };
+};
+
+export default async function DashboardPage({ searchParams }: Props) {
   const user = await currentUser();
   if (!user) redirect('/login');
 
+  const page = Math.max(1, Number(searchParams?.page || '1'));
+  const perPage = Math.min(100, Math.max(5, Number(searchParams?.perPage || '20')));
+
+  const where = { userId: user.id };
+  const total = await prisma.file.count({ where });
   const files = await prisma.file.findMany({
-    where: { userId: user.id },
+    where,
     include: { shareLink: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * perPage,
+    take: perPage
   });
 
   return (
@@ -39,6 +50,14 @@ export default async function DashboardPage() {
             shareToken: file.shareLink?.token ?? null
           }))}
         />
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-slate-400">Page {page} of {Math.max(1, Math.ceil(total / perPage))}</div>
+          <div className="flex gap-2">
+            {page > 1 ? <a className="btn btn-ghost" href={`?page=${page - 1}&perPage=${perPage}`}>Previous</a> : null}
+            {page * perPage < total ? <a className="btn btn-ghost" href={`?page=${page + 1}&perPage=${perPage}`}>Next</a> : null}
+          </div>
+        </div>
       </main>
     </>
   );

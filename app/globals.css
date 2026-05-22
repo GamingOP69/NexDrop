@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 :root {
+  --bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --card-bg: rgba(255,255,255,0.85);
+  --text: #0f172a;
+  color-scheme: light;
+}
+
+:root.dark, .dark {
+  --bg: radial-gradient(circle at top, rgba(60, 84, 255, 0.15), transparent 25%), linear-gradient(180deg, #0b1020 0%, #0a0f1c 100%);
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --text: #e5e7eb;
   color-scheme: dark;
 }
 
@@ -10,10 +20,8 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background:
-    radial-gradient(circle at top, rgba(60, 84, 255, 0.15), transparent 25%),
-    linear-gradient(180deg, #0b1020 0%, #0a0f1c 100%);
-  color: #e5e7eb;
+  background: var(--bg);
+  color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -36,11 +44,11 @@ input, button, select, textarea {
 }
 
 .card {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  backdrop-filter: blur(18px);
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  background: var(--card-bg);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.06);
 }
 
 .btn {
@@ -70,4 +78,33 @@ input, button, select, textarea {
 
 .field:focus {
   border-color: rgba(109, 124, 255, 0.95);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+  width: auto;
+  height: auto;
+  padding: .5rem .75rem;
+  background: #111827;
+  color: white;
+  z-index: 9999;
+  border-radius: 8px;
+}
+
+/* Focus visible for keyboard users */
+*:focus:not(:focus-visible) { outline: none; }
+:focus-visible { outline: 3px solid rgba(109,124,255,0.9); outline-offset: 2px; }
+
+@media (min-width: 1024px) {
+  .container { width: min(1100px, calc(100% - 48px)); }
 }
