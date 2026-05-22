@@ -4,14 +4,23 @@ import path from 'path';
 import { env } from './env';
 import { safeFileName } from './utils';
 
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  type GetObjectCommandInput
+} from '@aws-sdk/client-s3';
 
-const s3 = env.S3_ENABLED
+const s3 = env.S3_ENABLED && env.S3_ACCESS_KEY && env.S3_SECRET_KEY
   ? new S3Client({
       region: env.S3_REGION,
       endpoint: env.S3_ENDPOINT || undefined,
       forcePathStyle: !!env.S3_ENDPOINT,
-      credentials: env.S3_ACCESS_KEY ? { accessKeyId: env.S3_ACCESS_KEY, secretAccessKey: env.S3_SECRET_KEY } : undefined
+      credentials: {
+        accessKeyId: env.S3_ACCESS_KEY,
+        secretAccessKey: env.S3_SECRET_KEY
+      }
     })
   : null;
 

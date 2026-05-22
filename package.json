@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
+    "preinstall": "node ./scripts/install-openssl-alpine.js || true",
     "build": "prisma generate && next build",
+    "prebuild": "npm ci --include=dev",
     "start": "next start",
     "start:prod": "next start -p ${PORT:-3000}",
     "postbuild": "rm -rf .next/node_modules .next/standalone/.next/node_modules || true",
@@ -48,7 +50,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^22.15.3",
     "@types/react": "^18.3.19",
     "@types/react-dom": "^18.3.5",

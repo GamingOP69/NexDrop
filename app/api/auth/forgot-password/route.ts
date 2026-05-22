@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { env } from '@/lib/env';
 import { queueEmail } from '@/lib/email';
 import crypto from 'crypto';
 import { emailSchema, forgotPasswordSchema } from '@/lib/validation';
@@ -67,7 +66,8 @@ export async function POST(req: NextRequest) {
 
     // Queue reset email
     try {
-      const resetUrl = `${env.APP_URL}/reset-password?token=${resetToken}`;
+      const origin = new URL(req.url).origin;
+      const resetUrl = `${origin}/reset-password?token=${resetToken}`;
       await queueEmail('reset-password', email, 'Reset your NexDrop password', { name: user.fullName || email, resetUrl });
     } catch (emailError) {
       console.error('Queue reset email failed:', emailError);

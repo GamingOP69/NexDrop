@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { env } from '@/lib/env';
 import { queueEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -65,7 +64,8 @@ export async function POST(req: NextRequest) {
 
     // Queue verification email
     try {
-      const verifyUrl = `${env.APP_URL}/api/auth/verify?token=${verificationToken}`;
+      const origin = new URL(req.url).origin;
+      const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
       await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
     } catch (emailError) {
       console.error('Queue verify email failed:', emailError);

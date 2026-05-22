@@ -10,7 +10,7 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 5. Start: `npm run dev`
 
 ## Production commands
-- Install: `npm ci`
+- Install: `npm ci --include=dev`
 - Build: `npm run build`
 - Lint: `npm run lint`
 - Start: `npm run start:prod`
@@ -18,7 +18,7 @@ Single-package full-stack file storage app built with Next.js App Router, Prisma
 **Commands**
 
 - **Install (local):** `npm install`
-- **Install (CI / reproducible):** `npm ci`
+- **Install (CI / reproducible):** `npm ci --include=dev`
 - **Build (production):** `npm run build`
 - **Start (production):** `npm run start:prod` (uses built artifacts)
 - **Start (development):** `npm run dev`
