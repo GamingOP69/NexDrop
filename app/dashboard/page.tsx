@@ -3,7 +3,7 @@ import { UploadZone } from '@/components/upload-zone';
 import { FileGrid } from '@/components/file-grid';
 import { prisma } from '@/lib/prisma';
 import { currentUser } from '@/lib/auth';
-import { humanSize } from '@/lib/utils';
+import utils from '@/lib/utils.js';
 import { redirect } from 'next/navigation';
 
 type Props = {
@@ -34,7 +34,7 @@ export default async function DashboardPage({ searchParams }: Props) {
         <div className="card p-6">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="mt-2 text-slate-300">
-            Storage used: {humanSize(user.storageUsed)} / {humanSize(user.storageLimit)}
+            Storage used: {utils.humanSize(user.storageUsed)} / {utils.humanSize(user.storageLimit)}
           </p>
         </div>
 
@@ -45,7 +45,7 @@ export default async function DashboardPage({ searchParams }: Props) {
             id: file.id,
             originalName: file.originalName,
             mimeType: file.mimeType,
-            size: humanSize(file.size),
+            size: utils.humanSize(file.size),
             createdAt: file.createdAt.toISOString(),
             shareToken: file.shareLink?.token ?? null
           }))}
