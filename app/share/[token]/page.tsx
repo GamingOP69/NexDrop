@@ -2,8 +2,12 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
-export default async function SharePage({ params }: { params: { token: string } }) {
-  const { token } = params;
+type Props = {
+  params?: Promise<{ token: string }>;
+};
+
+export default async function SharePage({ params }: Props) {
+  const { token } = (await params) ?? {} as { token: string };
   const share = await prisma.shareLink.findUnique({
     where: { token },
     include: { file: true }
