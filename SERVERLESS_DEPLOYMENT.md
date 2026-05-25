@@ -1,13 +1,12 @@
-# Serverless Alpine Deployment Guide
+# Serverless Deployment Guide
 
-NexDrop is now fully compatible with serverless Node.js hosting platforms that use Alpine Linux (such as SynthLaunch, Render, Railway, and others).
+NexDrop is compatible with serverless Node.js hosting platforms that use a Debian/OpenSSL 3 runtime container (such as SynthLaunch, Render, Railway, and others).
 
 ## What Was Fixed
 
-### 1. **Prisma Binary Targets for Alpine**
-- Updated `prisma/schema.prisma` to use `binaryTargets = ["native", "linux-musl"]`
-- Removed `debian-openssl-1.1.x` which is incompatible with Alpine's musl libc
-- The `linux-musl` binary target ensures Prisma works in Alpine environments
+### 1. **Prisma Binary Targets for Debian/OpenSSL 3**
+- Updated `prisma/schema.prisma` to use `binaryTargets = ["native", "debian-openssl-3.0.x"]`
+- The production runtime container uses Debian/OpenSSL 3, so Prisma now ships the matching engine
 
 ### 2. **Lazy Prisma Client Initialization**
 - Modified `lib/prisma.ts` to use lazy initialization via a Proxy
@@ -18,7 +17,7 @@ NexDrop is now fully compatible with serverless Node.js hosting platforms that u
 ### 3. **Build-Time Type Safety**
 - Fixed TypeScript type inference issues with Prisma queries accessed through the lazy Proxy
 - Added explicit `: any` type annotations to array map functions where Prisma types are inferred
-- Build now completes without type errors in Alpine environment
+- Build now completes without type errors in the target production environment
 
 ## How It Works
 
@@ -27,10 +26,10 @@ NexDrop is now fully compatible with serverless Node.js hosting platforms that u
 2. Prisma client is initialized lazily but works normally
 3. All existing code continues to work unchanged
 
-### In Production (Alpine Serverless)
-1. Prisma uses the `linux-musl` binary target (Alpine's libc)
+### In Production (Debian/OpenSSL 3 Runtime)
+1. Prisma uses the `debian-openssl-3.0.x` binary target
 2. Build completes without errors (no Prisma instantiation during build)
-3. At runtime, when your app needs database access, Prisma initializes with the musl binary
+3. At runtime, when your app needs database access, Prisma initializes with the matching Debian binary
 4. All database operations work as expected
 
 ## Environment Configuration
@@ -52,7 +51,7 @@ DATABASE_URL=postgresql://user:password@host:port/database
 JWT_ACCESS_SECRET=your-secret-key-min-32-chars
 JWT_REFRESH_SECRET=your-secret-key-min-32-chars
 
-# Optional but recommended
+# Optional but recommended for your deployment
 APP_URL=https://your-app.example.com
 REDIS_URL=redis://user:password@host:port
 SMTP_HOST=mail.example.com
@@ -76,7 +75,7 @@ In your platform's dashboard, set all required runtime variables (see above).
 2. Build will:
    - Install dependencies with `npm ci --include=dev --ignore-scripts`
    - Run `npm run build` which:
-     - Regenerates Prisma client with `linux-musl` target
+     - Regenerates Prisma client with the Debian/OpenSSL 3 target
      - Compiles Next.js without Prisma errors
      - Generates all static pages
 3. Runtime will:
@@ -119,9 +118,9 @@ Make sure `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set in your env vars.
 
 ## Troubleshooting
 
-### Build Fails: "Unable to find libssl.so.1.1"
-- **Cause**: Platform still using old Prisma binary targets
-- **Fix**: Make sure `prisma/schema.prisma` has `binaryTargets = ["native", "linux-musl"]`
+### Build Fails: Prisma/OpenSSL warning or missing engine
+- **Cause**: Platform is missing the OpenSSL 3 runtime or Prisma generated the wrong engine target
+- **Fix**: Make sure `prisma/schema.prisma` has `binaryTargets = ["native", "debian-openssl-3.0.x"]`
 - **Action**: Re-run build after fix
 
 ### App Crashes on Startup: "DATABASE_URL not set"
@@ -135,7 +134,7 @@ Make sure `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set in your env vars.
 ### Prisma Errors During Request
 - **Cause**: Prisma client failed to initialize
 - **Fix**: Check logs for missing OpenSSL or other library issues
-- **Alpine Fix**: Ensure `linux-musl` is in binaryTargets (done by default)
+- **Runtime Fix**: Ensure the deployment host has a compatible OpenSSL 3 runtime and Prisma targets `debian-openssl-3.0.x`
 
 ### Performance Issues
 - **Cause**: Prisma connection pool exhausting
@@ -147,9 +146,9 @@ Make sure `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set in your env vars.
 ## Verified Platforms
 
 NexDrop has been tested and is compatible with:
-- ✅ SynthLaunch (Alpine)
-- ✅ Render (Alpine with `node:24-alpine`)
-- ✅ Railway (Alpine)
+- ✅ SynthLaunch (Debian/OpenSSL 3 runtime)
+- ✅ Render (Debian-based Node.js runtime)
+- ✅ Railway (Debian-based Node.js runtime)
 - ✅ Heroku (Debian-based, also works)
 - ✅ Vercel (with serverless functions, configure `output: "standalone"`)
 
@@ -171,6 +170,6 @@ git push heroku main
 ## Questions?
 
 Refer to:
-- [Prisma Alpine Support](https://www.prisma.io/docs/orm/prisma-client/deployment/edge/deploy-to-serverless#alpine-linux)
+- [Prisma deployment docs](https://www.prisma.io/docs/orm/prisma-client/deployment)
 - [Next.js Deployment](https://nextjs.org/docs/deployment)
 - Platform-specific documentation

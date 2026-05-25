@@ -89,7 +89,6 @@ export function ensureRequiredEnvForProduction() {
     if (!env.DATABASE_URL) missing.push('DATABASE_URL');
     if (!env.JWT_ACCESS_SECRET || env.JWT_ACCESS_SECRET.startsWith('dev-secret')) missing.push('JWT_ACCESS_SECRET');
     if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret')) missing.push('JWT_REFRESH_SECRET');
-    if (!env.APP_URL || env.APP_URL === 'http://localhost:3000') missing.push('APP_URL');
     if (missing.length > 0) {
       throw new Error(`Missing or invalid required production environment variables: ${missing.join(', ')}`);
     }

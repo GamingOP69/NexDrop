@@ -1,15 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { initSentry } from './sentry';
 import { ensureRequiredEnvForProduction } from './env';
-
-initSentry();
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 /**
  * Lazy-initialized Prisma client.
  * This prevents Prisma from being instantiated during Next.js build time
- * (which would fail in Alpine serverless environments with missing libssl).
+ * (which can fail in production images with missing or incompatible OpenSSL).
  * Prisma is only initialized when actually needed at runtime.
  */
 const initPrisma = (): PrismaClient => {
