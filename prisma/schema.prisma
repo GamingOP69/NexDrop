@@ -1,8 +1,8 @@
 generator client {
   provider = "prisma-client-js"
-  // Alpine serverless environments need linux-musl; local dev uses native.
-  // This configuration avoids OpenSSL 1.1 dependency issues on Alpine.
-  binaryTargets = ["native", "linux-musl"]
+  // Keep a stable Linux target for the production runtime, while still
+  // allowing local development to use the current machine's native engine.
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {

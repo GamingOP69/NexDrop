@@ -32,7 +32,8 @@ Required runtime variables for production:
 - `DATABASE_URL`
 - `JWT_ACCESS_SECRET`
 - `JWT_REFRESH_SECRET`
-- `APP_URL`
+
+`APP_URL` is optional and no longer required for Prisma-backed API routes. The app now derives public URLs from the incoming request origin where needed.
 
 Optional features:
 - SMTP/email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`
@@ -41,6 +42,11 @@ Optional features:
 
 Runtime validation note:
 - The runtime helper `NEXDROP_RUNTIME=1` is used in the Docker runtime stage to enforce required production envs after build. It is not required for building the app.
+
+**OpenSSL / Prisma note**
+
+- Prisma is configured for the production Linux/OpenSSL 3 runtime target used by the deployment container.
+- If you build custom images, make sure OpenSSL is installed in the runtime image.
 
 **Commands**
 
@@ -79,7 +85,8 @@ worker: npm run email:worker
 **Runtime notes**
 
 - The app enforces required production environment variables at runtime only when `NEXDROP_RUNTIME=1` is set (the provided `Dockerfile` sets this). This avoids build-time failures during static generation while ensuring secrets are validated in production.
-- Prefer Debian-based Node images (the `Dockerfile` uses `node:20-bullseye-slim`) or ensure `libssl1.1` is installed in your build/runtime image to avoid Prisma/libssl compatibility errors.- `npm run build` does not require a `.env` file if you only need to build static and dynamic routes; the repo uses safe defaults for missing optional values. However, a runtime `.env` is still required to run the app with your real database and credentials.
+- Prefer Debian-based Node images with OpenSSL 3 (the `Dockerfile` uses `node:24-bookworm-slim`) or ensure your runtime image provides a compatible OpenSSL 3 library for Prisma.
+- `npm run build` does not require a `.env` file if you only need to build static and dynamic routes; the repo uses safe defaults for missing optional values. However, a runtime `.env` is still required to run the app with your real database and credentials.
 ## Tests
 - Unit tests: `npm test`
 - E2E tests: `npm run test:e2e`
@@ -93,12 +100,10 @@ worker: npm run email:worker
 
 ## Deployment notes
 
-- Prisma engines require a compatible OpenSSL library at build/runtime. CI systems that use Alpine/musl images can encounter "libssl.so.1.1" errors. Recommended options:
-   - Build using the provided `Dockerfile` (Debian-based `node:24-bookworm-slim`) which includes OpenSSL 1.1 compatibility.
-   - Or ensure your build image installs `libssl1.1` (or the compatible package) before running `npm ci` / `npm run build`.
-- Some deployment platforms upload the `.next` folder directly and may refuse non-regular files (symlinks) under `.next/node_modules`. The build now removes those post-build to avoid upload failures.
+- Prisma engines require a compatible OpenSSL library at build/runtime. The app is now aligned with the Debian/OpenSSL 3 runtime used by the current container deployment.
+- Some deployment platforms upload the `.next` folder directly and may refuse non-regular files (symlinks) under `.next/node_modules`. The build removes those post-build to avoid upload failures.
 
-If you run into issues, prefer building inside the included Dockerfile or in a Debian-based CI runner.
+If you run into issues, prefer building inside the included Dockerfile or in a Debian-based CI runner with OpenSSL installed.
 
 For SynthLaunch, use the same production commands listed above:
 
