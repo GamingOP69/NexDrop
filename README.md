@@ -110,3 +110,7 @@ For SynthLaunch, use the same production commands listed above:
 - Install: `npm ci --include=dev --ignore-scripts`
 - Build: `npm run build`
 - Start: `npm run start:prod`
+
+Health check endpoint:
+
+- `GET /api/health` returns `200` with `{ ok: true }` and can be used as a container health path.
