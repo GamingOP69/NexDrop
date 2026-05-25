@@ -1,25 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { AuthShell, AuthLink } from '@/components/auth-shell';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [token, setToken] = useState('');
+  const searchParams = useSearchParams();
+  const [token, setToken] = useState(() => searchParams.get('token') || '');
   const [password, setPassword] = useState('');
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    try {
-      setToken(new URLSearchParams(window.location.search).get('token') || '');
-    } catch {
-      setToken('');
-    }
-  }, []);
-
-  const hasToken = Boolean(token.trim());
+  const hasToken = useMemo(() => Boolean(token.trim()), [token]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
