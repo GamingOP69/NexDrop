@@ -1,21 +1,23 @@
 import { Navbar } from '@/components/navbar';
 import { UploadZone } from '@/components/upload-zone';
-import { FileGrid } from '@/components/file-grid';
+import { DashboardFiles } from '@/components/dashboard-files';
 import { prisma } from '@/lib/prisma';
 import { currentUser } from '@/lib/auth';
 import utils from '@/lib/utils.js';
 import { redirect } from 'next/navigation';
 
 type Props = {
-  searchParams?: { [key: string]: string | undefined };
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
 };
 
 export default async function DashboardPage({ searchParams }: Props) {
   const user = await currentUser();
   if (!user) redirect('/login');
 
-  const page = Math.max(1, Number(searchParams?.page || '1'));
-  const perPage = Math.min(100, Math.max(5, Number(searchParams?.perPage || '20')));
+  const resolvedSearchParams = (await searchParams) ?? {};
+
+  const page = Math.max(1, Number(resolvedSearchParams.page || '1'));
+  const perPage = Math.min(100, Math.max(5, Number(resolvedSearchParams.perPage || '20')));
 
   const where = { userId: user.id };
   const total = await prisma.file.count({ where });
@@ -70,7 +72,7 @@ export default async function DashboardPage({ searchParams }: Props) {
             </div>
             <p className="meta text-sm">Page {page} of {Math.max(1, Math.ceil(total / perPage))}</p>
           </div>
-          <FileGrid
+          <DashboardFiles
             files={files.map((file: any) => ({
               id: file.id,
               originalName: file.originalName,

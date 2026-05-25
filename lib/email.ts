@@ -3,7 +3,6 @@ import { env } from './env';
 import { getRedis } from './redis';
 import fs from 'fs/promises';
 import path from 'path';
-import Handlebars from 'handlebars';
 
 type Mail = {
   to: string;
@@ -36,8 +35,10 @@ export async function renderTemplate(name: string, vars: Record<string, any>) {
   const file = path.join(process.cwd(), 'lib', 'email_templates', `${name}.html`);
   try {
     const tpl = await fs.readFile(file, 'utf-8');
-    const compile = Handlebars.compile(tpl);
-    return compile(vars);
+    return tpl.replace(/{{\s*([\w.-]+)\s*}}/g, (_match, key) => {
+      const value = vars[key];
+      return value === undefined || value === null ? '' : String(value);
+    });
   } catch (e) {
     console.error('Template render error', e);
     throw e;

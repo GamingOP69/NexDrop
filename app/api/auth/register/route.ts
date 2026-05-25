@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
+import { env } from '@/lib/env';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'node:crypto';
 import { registerSchema } from '@/lib/validation';
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password, fullName } = validation.data;
+    const smtpConfigured = Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
 
     // Check if email already exists
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -57,18 +59,21 @@ export async function POST(req: NextRequest) {
         email,
         passwordHash,
         fullName,
-        verificationToken,
+        verificationToken: smtpConfigured ? verificationToken : null,
+        isVerified: !smtpConfigured,
         storageLimit: 10 * 1024 * 1024 * 1024 // 10 GB default
       }
     });
 
-    // Queue verification email
-    try {
-      const origin = new URL(req.url).origin;
-      const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
-      await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
-    } catch (emailError) {
-      console.error('Queue verify email failed:', emailError);
+    // Queue verification email when SMTP is configured.
+    if (smtpConfigured) {
+      try {
+        const origin = new URL(req.url).origin;
+        const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
+        await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
+      } catch (emailError) {
+        console.error('Queue verify email failed:', emailError);
+      }
     }
 
     // Log signup event
@@ -86,7 +91,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      message: 'Account created. Check your email to verify your account.'
+      message: smtpConfigured
+        ? 'Account created. Check your email to verify your account.'
+        : 'Account created and ready to use. SMTP is not configured, so email verification was skipped.'
     });
   } catch (error) {
     console.error('Register error:', error);

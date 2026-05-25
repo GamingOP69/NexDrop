@@ -65,11 +65,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if email is verified
-    if (!user.isVerified) {
+    const smtpConfigured = Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
+    if (!user.isVerified && smtpConfigured) {
       return NextResponse.json(
         { error: 'Email not verified. Check your inbox for verification link.' },
         { status: 403 }
       );
+    }
+
+    if (!user.isVerified && !smtpConfigured) {
+      await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verificationToken: null } });
     }
 
     // Generate tokens
