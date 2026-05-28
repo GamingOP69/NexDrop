@@ -8,6 +8,8 @@ test('homepage loads and shows NexDrop branding', async ({ page }) => {
 
 test('login page is available', async ({ page }) => {
   await page.goto('/login');
-  await expect(page.locator('input[name="email"]')).toBeVisible();
-  await expect(page.locator('input[name="password"]')).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByLabel('Email')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByLabel('Password')).toBeVisible({ timeout: 15000 });
 });
