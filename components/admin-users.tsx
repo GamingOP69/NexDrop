@@ -6,17 +6,31 @@ export function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bootstrapMode, setBootstrapMode] = useState(false);
 
   async function load() {
     setLoading(true);
     setError('');
+    setBootstrapMode(false);
 
     try {
+      const meRes = await fetch('/api/auth/me');
+      const meData = await meRes.json().catch(() => ({}));
+      if (meRes.ok && (meData?.user?.bootstrap || meData?.user?.id === 'env-admin')) {
+        setBootstrapMode(true);
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('/api/admin/users');
       const requestId = res.headers.get('x-request-id') || 'n/a';
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        if (res.status === 503 && data?.bootstrap) {
+          setBootstrapMode(true);
+        }
         setError(data?.error || `Failed to load users (request ${requestId})`);
         if (process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGS === 'true') {
           console.error('[admin/users] load failed', { status: res.status, requestId, error: data?.error });
@@ -87,6 +101,11 @@ export function AdminUsers() {
         {loading ? <span className="pill">Loading…</span> : null}
       </div>
       <div className="mt-4 space-y-3">
+        {bootstrapMode ? (
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-4 text-sm">
+            Bootstrap admin mode is active. Database-backed user management is disabled until the normal auth/database path is restored.
+          </div>
+        ) : null}
         {error ? <p className="text-sm text-[color:var(--danger)]">{error}</p> : null}
         {users.map((u) => (
           <div key={u.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-3">
@@ -98,8 +117,8 @@ export function AdminUsers() {
               <span className="pill">{u.role}</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              {u.role !== 'ADMIN' ? <button className="btn btn-secondary btn-sm" onClick={() => action(u.id, 'promote')} type="button">Promote</button> : <button className="btn btn-secondary btn-sm" onClick={() => action(u.id, 'demote')} type="button">Demote</button>}
-              <button className="btn btn-ghost btn-sm" onClick={() => action(u.id, 'delete')} type="button">Delete</button>
+              {u.role !== 'ADMIN' ? <button className="btn btn-secondary btn-sm" disabled={bootstrapMode} onClick={() => action(u.id, 'promote')} type="button">Promote</button> : <button className="btn btn-secondary btn-sm" disabled={bootstrapMode} onClick={() => action(u.id, 'demote')} type="button">Demote</button>}
+              <button className="btn btn-ghost btn-sm" disabled={bootstrapMode} onClick={() => action(u.id, 'delete')} type="button">Delete</button>
             </div>
           </div>
         ))}

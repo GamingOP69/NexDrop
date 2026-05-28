@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logServerError } from '@/lib/logger';
+import { BOOTSTRAP_ADMIN_SUBJECT } from '@/lib/admin-bootstrap';
 
 export const runtime = 'nodejs';
 
@@ -10,7 +11,13 @@ export async function GET(req: NextRequest) {
   const requestId = randomUUID();
 
   try {
-    await requireAdmin();
+    const user = await requireAdmin();
+    if ((user as any).bootstrap || user.id === BOOTSTRAP_ADMIN_SUBJECT) {
+      return NextResponse.json(
+        { error: 'User management is unavailable in bootstrap admin mode', bootstrap: true },
+        { status: 503, headers: { 'x-request-id': requestId } }
+      );
+    }
   } catch {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: { 'x-request-id': requestId } });
   }
@@ -32,7 +39,13 @@ export async function PATCH(req: NextRequest) {
   const requestId = randomUUID();
 
   try {
-    await requireAdmin();
+    const user = await requireAdmin();
+    if ((user as any).bootstrap || user.id === BOOTSTRAP_ADMIN_SUBJECT) {
+      return NextResponse.json(
+        { error: 'User management is unavailable in bootstrap admin mode', bootstrap: true },
+        { status: 503, headers: { 'x-request-id': requestId } }
+      );
+    }
 
     // CSRF guard for state-changing admin actions
     const csrfHeader = req.headers.get('x-csrf-token') || '';
@@ -63,7 +76,13 @@ export async function DELETE(req: NextRequest) {
   const requestId = randomUUID();
 
   try {
-    await requireAdmin();
+    const user = await requireAdmin();
+    if ((user as any).bootstrap || user.id === BOOTSTRAP_ADMIN_SUBJECT) {
+      return NextResponse.json(
+        { error: 'User management is unavailable in bootstrap admin mode', bootstrap: true },
+        { status: 503, headers: { 'x-request-id': requestId } }
+      );
+    }
 
     const csrfHeader = req.headers.get('x-csrf-token') || '';
     const csrfCookie = req.cookies.get('nd_csrf')?.value || '';

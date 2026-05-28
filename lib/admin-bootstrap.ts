@@ -8,6 +8,7 @@ export type BootstrapAdminProfile = {
   email: string;
   fullName: string;
   role: Role;
+  bootstrap: true;
   storageUsed: bigint;
   storageLimit: bigint;
   isVerified: boolean;
@@ -55,6 +56,7 @@ export function getBootstrapAdminProfile(): BootstrapAdminProfile | null {
     email,
     fullName: 'Bootstrap Admin',
     role: 'ADMIN',
+    bootstrap: true,
     storageUsed: 0n,
     storageLimit: 0n,
     isVerified: true
