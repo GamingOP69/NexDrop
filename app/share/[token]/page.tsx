@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import utils from '@/lib/utils.js';
+import { env } from '@/lib/env';
 
 type Props = {
   params?: Promise<{ token: string }>;
@@ -87,7 +88,7 @@ export default async function SharePage({ params }: Props) {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link className="btn btn-primary w-fit" href={`/api/shares/${share.token}/download`}>Download file</Link>
-            <a className="btn btn-secondary w-fit" href={`mailto:?subject=${encodeURIComponent(share.file.originalName)}&body=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || ''}/share/${share.token}`)}`}>Share link</a>
+            <a className="btn btn-secondary w-fit" href={`mailto:?subject=${encodeURIComponent(share.file.originalName)}&body=${encodeURIComponent(`${env.APP_URL}/share/${share.token}`)}`}>Share link</a>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="info-card">
@@ -117,8 +118,15 @@ export default async function SharePage({ params }: Props) {
             </div>
           </div>
           <div className="section-grid">
-            <div className="feature-card"><span className="pill">Type</span><p className="detail mt-3 text-sm leading-6">{share.file.mimeType}</p></div>
+            <div className="feature-card"><span className="pill">Type</span><p className="detail mt-3 text-sm leading-6 break-all">{share.file.mimeType}</p></div>
             <div className="feature-card"><span className="pill">Expiry</span><p className="detail mt-3 text-sm leading-6">{expiresAt}</p></div>
+          </div>
+          <div className="section-card stack-4">
+            <p className="title-sm font-semibold">Share link</p>
+            <div className="rounded-[16px] border border-[color:var(--border)] bg-[color:var(--panel-strong)] px-4 py-3 text-sm text-[color:var(--text)] break-all">
+              {env.APP_URL}/share/{share.token}
+            </div>
+            <p className="detail text-sm leading-6">Copy this link into email, chat, or an internal handoff note.</p>
           </div>
         </div>
       </div>

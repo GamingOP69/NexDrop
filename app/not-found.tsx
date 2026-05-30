@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="page-shell stack-6">
       <div className="hero-shell items-stretch">
         <div className="hero-copy stack-6">
-          <span className="eyebrow">404</span>
+          <span className="eyebrow" aria-hidden="true">404</span>
           <div className="stack-4">
             <h1 className="title-lg max-w-[12ch]">That page does not exist.</h1>
             <p className="supporting max-w-xl text-base leading-7">The route may have moved or the link is stale. Head back to the homepage or dashboard.</p>

@@ -78,7 +78,8 @@ export async function POST(req: NextRequest) {
     // Queue verification email when SMTP is configured.
     if (smtpConfigured) {
       try {
-        const origin = new URL(req.url).origin;
+        // Prefer configured APP_URL from environment for links, fall back to request origin
+        const origin = env.APP_URL || new URL(req.url).origin;
         const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
         await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
       } catch (emailError) {

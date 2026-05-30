@@ -46,6 +46,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([expiresAt])
 }
 
 model File {
@@ -66,6 +67,7 @@ model File {
   uploadChunks    UploadChunk[]
 
   @@index([userId])
+  @@index([userId, createdAt])
 }
 
 model ShareLink {
@@ -84,6 +86,7 @@ model ShareLink {
   createdBy          User?    @relation("ShareCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([token])
+  @@index([createdById])
 }
 
 model UploadChunk {
@@ -109,4 +112,5 @@ model AnalyticsEvent {
   user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId, eventType])
+  @@index([eventType, createdAt])
 }

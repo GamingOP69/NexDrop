@@ -42,6 +42,9 @@ export async function GET(req: NextRequest, ctx: any) {
     const start = match[1] ? Number(match[1]) : 0;
     const end = match[2] ? Number(match[2]) : size - 1;
     if (start > end || start >= size) return new Response('Range Not Satisfiable', { status: 416 });
+    if (start < 0 || end < 0 || !Number.isFinite(start) || !Number.isFinite(end)) {
+      return new Response('Invalid range', { status: 416 });
+    }
 
     if (env.S3_ENABLED) {
       // S3 will handle Range via GetObjectCommand internally through getReadableStream

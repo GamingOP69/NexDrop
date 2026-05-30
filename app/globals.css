@@ -4,43 +4,49 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f1ea;
-  --bg-accent: radial-gradient(circle at top left, rgba(122, 90, 57, 0.16), transparent 30%), radial-gradient(circle at 82% 12%, rgba(82, 109, 180, 0.14), transparent 24%), linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent 28%);
-  --panel: rgba(255, 253, 248, 0.84);
-  --panel-strong: rgba(255, 255, 255, 0.96);
-  --text: #1e2430;
-  --muted: #5d6779;
-  --border: rgba(30, 36, 48, 0.1);
-  --border-strong: rgba(82, 109, 180, 0.22);
-  --accent: #445b8c;
-  --accent-strong: #253a66;
-  --accent-soft: rgba(68, 91, 140, 0.11);
-  --accent-ink: #f7f8fc;
-  --danger: #c2414d;
-  --success: #1e7a4f;
-  --shadow-sm: 0 10px 30px rgba(30, 36, 48, 0.08);
-  --shadow-lg: 0 28px 84px rgba(30, 36, 48, 0.12);
+  --bg: #f6f2e8;
+  --surface: #fffaf1;
+  --bg-accent: linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 32%), radial-gradient(circle at top left, rgba(38, 41, 56, 0.08), transparent 28%), radial-gradient(circle at 82% 12%, rgba(64, 95, 171, 0.12), transparent 24%);
+  --panel: rgba(255, 252, 245, 0.94);
+  --panel-strong: rgba(255, 255, 255, 1);
+  --text: #1c2029;
+  --muted: #5d6472;
+  --border: rgba(30, 36, 48, 0.16);
+  --border-strong: rgba(30, 36, 48, 0.28);
+  --accent: #364668;
+  --accent-strong: #1f2b44;
+  --accent-soft: rgba(54, 70, 104, 0.1);
+  --accent-ink: #f8f8f4;
+  --focus-ring-inner: #ffffff;
+  --focus-ring-outer: rgba(31, 43, 68, 0.9);
+  --danger: #b53e4c;
+  --success: #1d734c;
+  --shadow-sm: 6px 6px 0 rgba(30, 36, 48, 0.12);
+  --shadow-lg: 12px 12px 0 rgba(30, 36, 48, 0.16);
 }
 
 :root.dark,
 .dark {
   color-scheme: dark;
   --bg: #0b1020;
-  --bg-accent: radial-gradient(circle at top left, rgba(132, 112, 255, 0.22), transparent 30%), radial-gradient(circle at 80% 18%, rgba(56, 189, 170, 0.14), transparent 24%), linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%);
-  --panel: rgba(15, 20, 36, 0.78);
-  --panel-strong: rgba(17, 24, 44, 0.96);
-  --text: #ebefff;
-  --muted: #a0aac2;
-  --border: rgba(160, 170, 194, 0.15);
-  --border-strong: rgba(132, 112, 255, 0.28);
-  --accent: #a4b4ff;
-  --accent-strong: #d0d8ff;
-  --accent-soft: rgba(164, 180, 255, 0.12);
+  --surface: #10172a;
+  --bg-accent: radial-gradient(circle at top left, rgba(132, 112, 255, 0.16), transparent 28%), radial-gradient(circle at 80% 18%, rgba(56, 189, 170, 0.12), transparent 24%), linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%);
+  --panel: rgba(14, 18, 32, 0.94);
+  --panel-strong: rgba(10, 14, 26, 1);
+  --text: #edf1ff;
+  --muted: #a0a8c0;
+  --border: rgba(160, 170, 194, 0.18);
+  --border-strong: rgba(208, 216, 255, 0.32);
+  --accent: #bcc8ff;
+  --accent-strong: #e7ebff;
+  --accent-soft: rgba(188, 200, 255, 0.12);
   --accent-ink: #0b1020;
+  --focus-ring-inner: #0b1020;
+  --focus-ring-outer: rgba(184, 198, 255, 0.9);
   --danger: #f28b93;
   --success: #77d6a3;
-  --shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.16);
-  --shadow-lg: 0 30px 90px rgba(0, 0, 0, 0.42);
+  --shadow-sm: 6px 6px 0 rgba(0, 0, 0, 0.42);
+  --shadow-lg: 12px 12px 0 rgba(0, 0, 0, 0.56);
 }
 
 html {
@@ -179,14 +185,15 @@ input, button, select, textarea {
 .list-card {
   border: 1px solid var(--border);
   background: var(--panel);
-  backdrop-filter: blur(24px);
-  border-radius: 28px;
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
   box-shadow: var(--shadow-lg);
 }
 
 .hero-copy,
 .hero-panel {
   padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-radius: 8px;
 }
 
 .hero-grid {
@@ -260,8 +267,8 @@ input, button, select, textarea {
   width: fit-content;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--text);
+  background: var(--panel-strong);
+  color: var(--accent-strong);
   padding: 0.45rem 0.8rem;
   font-size: 0.82rem;
   font-weight: 700;
@@ -269,13 +276,13 @@ input, button, select, textarea {
 }
 
 .chip,
-.pill { background: var(--panel-strong); }
+.pill { background: var(--panel-strong); color: var(--text); }
 
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
-  backdrop-filter: blur(18px);
-  border-radius: 24px;
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -309,13 +316,14 @@ input, button, select, textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.3rem;
+  width: 2.6rem;
   height: 2.3rem;
-  border-radius: 14px;
+  border-radius: 10px;
   background: linear-gradient(135deg, var(--accent-strong), var(--accent));
   color: var(--accent-ink);
   font-weight: 800;
-  box-shadow: 0 12px 30px rgba(81, 103, 255, 0.35);
+  font-size: 0.82rem;
+  box-shadow: 5px 5px 0 var(--border-strong);
 }
 
 .nav-links {
@@ -415,16 +423,16 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  border: 1px solid transparent;
-  border-radius: 16px;
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
   padding: 0.9rem 1.15rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease, background-color 140ms ease;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
+  transform: translate(-3px, -3px);
 }
 
 .btn:disabled {
@@ -436,14 +444,27 @@ textarea:focus {
 .btn-primary {
   background: linear-gradient(135deg, var(--accent-strong), var(--accent));
   color: var(--accent-ink);
-  box-shadow: 0 18px 40px rgba(81, 103, 255, 0.28);
+  box-shadow: 6px 6px 0 var(--border-strong);
 }
 
 .btn-secondary,
 .btn-ghost {
   background: var(--panel-strong);
   color: var(--text);
-  border-color: var(--border);
+  border-color: var(--border-strong);
+  box-shadow: 4px 4px 0 rgba(30, 36, 48, 0.08);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent-strong);
+  border-color: var(--accent);
+  box-shadow: 4px 4px 0 rgba(30, 36, 48, 0.08);
+}
+
+.btn-outline:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .btn-secondary:hover,
@@ -453,14 +474,20 @@ textarea:focus {
 
 .btn-sm {
   padding: 0.65rem 0.9rem;
-  border-radius: 13px;
+  border-radius: 12px;
   font-size: 0.92rem;
 }
 
 .btn:focus-visible,
 .nav-links a:focus-visible,
-.nav-links button:focus-visible {
+.nav-links button:focus-visible,
+.field:focus-visible,
+.search-input:focus-visible,
+.select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus-ring-inner);
   outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-ring-outer);
 }
 
 .link-strong {
@@ -502,8 +529,8 @@ textarea:focus {
   background: var(--panel-strong);
   color: var(--text);
   z-index: 9999;
-  border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border: 2px solid var(--border-strong);
+  border-radius: 10px;
 }
 
 .hero-copy,
@@ -530,7 +557,7 @@ textarea:focus {
 .auth-panel:hover,
 .auth-aside:hover {
   border-color: var(--border-strong);
-  box-shadow: 0 24px 70px rgba(30, 36, 48, 0.14);
+  box-shadow: 14px 14px 0 rgba(30, 36, 48, 0.18);
 }
 
 .empty-state {
@@ -538,8 +565,8 @@ textarea:focus {
 }
 
 .upload-dropzone {
-  border-radius: 22px;
-  border: 1px dashed var(--border-strong);
+  border-radius: 18px;
+  border: 2px dashed var(--border-strong);
   background: linear-gradient(180deg, var(--panel-strong), var(--panel));
 }
 
@@ -552,8 +579,22 @@ textarea:focus {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(81, 103, 255, 0.82);
-  outline-offset: 3px;
+  outline: 2px solid var(--focus-ring-inner);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-ring-outer);
+}
+
+/* Screen-reader only helper */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 @media (min-width: 1024px) {
@@ -592,7 +633,7 @@ textarea:focus {
   .section-card,
   .auth-panel,
   .auth-aside {
-    border-radius: 22px;
+    border-radius: 16px;
   }
 
   .hero-copy,
@@ -617,6 +658,10 @@ textarea:focus {
   .nav-links button {
     width: 100%;
     justify-content: center;
+  }
+
+  .btn {
+    box-shadow: 4px 4px 0 var(--border-strong);
   }
 }
 

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { fileIdSchema } from '@/lib/validation';
+import { deleteStoredFile } from '@/lib/storage';
 import fs from 'fs/promises';
-import path from 'path';
 
 export const runtime = 'nodejs';
 
@@ -36,9 +36,7 @@ export async function DELETE(req: NextRequest, ctx: any) {
     try {
       // Delete main file
       if (file.storagePath && file.storagePath.length > 0) {
-        await fs.unlink(file.storagePath).catch(() => {
-          // File may not exist on disk
-        });
+        await deleteStoredFile(file.storagePath);
       }
 
       // Delete orphaned chunks if any

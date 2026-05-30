@@ -18,7 +18,7 @@ export function Navbar() {
       <nav role="navigation" aria-label="Main navigation" className="glass-nav card nav-shell">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3">
-            <span className="brand-mark">N</span>
+            <span className="brand-mark" aria-hidden="true">N</span>
             <span className="font-semibold tracking-tight">NexDrop</span>
           </Link>
           <span className="pill hidden sm:inline-flex">Cloud workspace</span>

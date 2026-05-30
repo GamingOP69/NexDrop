@@ -22,11 +22,11 @@ export default function HomePage() {
 
       <section className="hero-shell">
         <div className="hero-copy stack-6">
-          <span className="eyebrow">Cloud transfer workspace</span>
+          <span className="eyebrow">MediaFire-style cloud workspace</span>
           <div className="stack-4">
-            <h1 className="title-xl max-w-[11ch]">Ship files like a modern cloud workspace.</h1>
+            <h1 className="title-xl max-w-[11ch]">Fast file sharing, cleaner than ever.</h1>
             <p className="supporting max-w-2xl text-lg leading-8">
-              NexDrop blends the clarity of Google Drive with the share-first feel of MediaFire. Upload files, organize work, create share links, and move fast on desktop or mobile.
+              NexDrop gives you a cleaner upload-first workspace with prominent sharing, strong file previews, and a polished interface that feels closer to a modern file host.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -52,23 +52,23 @@ export default function HomePage() {
 
         <div className="hero-panel stack-6">
           <div className="section-card stack-4">
-            <span className="pill">Product highlights</span>
+            <span className="pill">Instant file actions</span>
             <div className="section-grid">
               <div className="feature-card">
-                <p className="title-sm font-semibold">Elegant dashboard</p>
-                <p className="detail mt-2 text-sm leading-6">A clearer file workspace with stronger hierarchy, better spacing, and faster scanning.</p>
+                <p className="title-sm font-semibold">Upload</p>
+                <p className="detail mt-2 text-sm leading-6">Chunked uploads with visible progress and quota checks.</p>
               </div>
               <div className="feature-card">
-                <p className="title-sm font-semibold">Clean auth flow</p>
-                <p className="detail mt-2 text-sm leading-6">Login, registration, reset, and recovery screens now read like a finished product.</p>
+                <p className="title-sm font-semibold">Preview</p>
+                <p className="detail mt-2 text-sm leading-6">Open images and videos in a clean, focused modal.</p>
               </div>
               <div className="feature-card">
-                <p className="title-sm font-semibold">Theme-aware UI</p>
-                <p className="detail mt-2 text-sm leading-6">Switch between light and dark without losing clarity or polish.</p>
+                <p className="title-sm font-semibold">Share</p>
+                <p className="detail mt-2 text-sm leading-6">Generate a share link in one click and copy it instantly.</p>
               </div>
               <div className="feature-card">
-                <p className="title-sm font-semibold">Responsive by design</p>
-                <p className="detail mt-2 text-sm leading-6">Layouts collapse cleanly on mobile and stay spacious on desktop.</p>
+                <p className="title-sm font-semibold">Manage</p>
+                <p className="detail mt-2 text-sm leading-6">See recent uploads, sizes, and actions at a glance.</p>
               </div>
             </div>
           </div>
@@ -85,38 +85,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section-card stack-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="eyebrow">What changed</span>
-            <h2 className="title-lg mt-3">A more premium shell across the app</h2>
-          </div>
-          <p className="supporting max-w-2xl text-sm leading-6">
-            The shared styles now drive all core routes so the landing page, auth pages, dashboard, admin area, and public share view feel consistent.
-          </p>
-        </div>
-        <div className="section-grid">
-          <div className="info-card">
-            <p className="title-sm font-semibold">Sharper cards</p>
-            <p className="detail mt-2 text-sm leading-6">Glass surfaces, stronger borders, and softer shadows create depth without looking busy.</p>
-          </div>
-          <div className="info-card">
-            <p className="title-sm font-semibold">Clearer hierarchy</p>
-            <p className="detail mt-2 text-sm leading-6">Large titles, compact labels, and restrained body text make every page easier to scan.</p>
-          </div>
-          <div className="info-card">
-            <p className="title-sm font-semibold">Device-friendly</p>
-            <p className="detail mt-2 text-sm leading-6">Layouts collapse cleanly on mobile while staying spacious on desktop.</p>
-          </div>
-        </div>
-      </section>
-
       <section className="hero-shell">
         <div className="section-card stack-5">
-          <span className="eyebrow">Workspace flow</span>
+          <span className="eyebrow">Simple workflow</span>
           <div className="stack-4">
-            <h2 className="title-lg max-w-[12ch]">A simple path from upload to share.</h2>
-            <p className="supporting text-base leading-7">The interface keeps familiar file-app patterns while giving the important actions more hierarchy and breathing room.</p>
+            <h2 className="title-lg max-w-[12ch]">Upload, preview, share, done.</h2>
+            <p className="supporting text-base leading-7">The layout is now centered on the three things users do most: add files, find files, and ship links quickly.</p>
           </div>
           <div className="section-grid">
             <div className="feature-card">
@@ -185,6 +159,34 @@ export default function HomePage() {
             <Link className="btn btn-primary" href="/register">Start free</Link>
             <Link className="btn btn-secondary" href="/dashboard">See dashboard</Link>
           </div>
+        </div>
+      </section>
+
+      <section className="section-card stack-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="eyebrow">Trust center</span>
+            <h2 className="title-lg mt-3">Policy and compliance pages are available.</h2>
+          </div>
+          <p className="supporting max-w-2xl text-sm leading-6">The public site now exposes the legal and compliance routes users expect before signing in.</p>
+        </div>
+        <div className="section-grid">
+          <Link href="/legal/privacy" className="feature-card block">
+            <span className="pill">Privacy Policy</span>
+            <p className="detail mt-3 text-sm leading-6">How account data, uploads, and cookies are handled.</p>
+          </Link>
+          <Link href="/legal/terms" className="feature-card block">
+            <span className="pill">Terms of Use</span>
+            <p className="detail mt-3 text-sm leading-6">Usage rules, account responsibilities, and service limits.</p>
+          </Link>
+          <Link href="/legal/ip-infringement" className="feature-card block">
+            <span className="pill">IP Infringement</span>
+            <p className="detail mt-3 text-sm leading-6">How copyright or trademark complaints are reported.</p>
+          </Link>
+          <Link href="/legal/data-compliance" className="feature-card block">
+            <span className="pill">Data Compliance</span>
+            <p className="detail mt-3 text-sm leading-6">Retention, deletion, access, and operational controls.</p>
+          </Link>
         </div>
       </section>
     </main>

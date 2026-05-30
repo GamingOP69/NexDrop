@@ -36,26 +36,37 @@ export default async function DashboardPage({ searchParams }: Props) {
     take: perPage
   });
 
+  const storageUsed = Number(user.storageUsed);
+  const storageLimit = Number(user.storageLimit);
+  const storagePercent = storageLimit > 0 ? Math.min(100, Math.round((storageUsed / storageLimit) * 100)) : 0;
+
   return (
     <>
       <Navbar />
       <main className="page-shell stack-8 pb-12">
         <section className="hero-shell">
           <div className="hero-copy stack-6">
-            <span className="eyebrow">Workspace overview</span>
+            <span className="eyebrow">File library</span>
             <div className="stack-4">
               <h1 className="title-lg max-w-[12ch]">Your files, shares, and storage at a glance.</h1>
               <p className="supporting max-w-2xl text-base leading-7">
                 Keep track of uploads, storage usage, and sharing actions from a dashboard that is easier to scan on every screen.
               </p>
             </div>
+            <div className="section-card stack-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="title-sm font-semibold">Storage used</p>
+                  <p className="detail mt-1 text-sm">{utils.humanSize(user.storageUsed)} of {utils.humanSize(user.storageLimit)}</p>
+                </div>
+                <div className="pill">{storagePercent}% full</div>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full border border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)]">
+                <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--accent),color-mix(in_oklab,var(--accent)_70%,black))]" style={{ width: `${storagePercent}%` }} />
+              </div>
+            </div>
           </div>
           <div className="hero-panel stack-4">
-            <div className="section-card">
-              <p className="title-sm font-semibold">Storage used</p>
-              <p className="stat-number mt-2 text-[2.2rem]">{utils.humanSize(user.storageUsed)}</p>
-              <p className="detail mt-2 text-sm">of {utils.humanSize(user.storageLimit)} available</p>
-            </div>
             <div className="section-grid">
               <div className="feature-card">
                 <span className="pill">Files</span>
@@ -64,6 +75,14 @@ export default async function DashboardPage({ searchParams }: Props) {
               <div className="feature-card">
                 <span className="pill">Shares</span>
                 <p className="detail mt-3 text-sm leading-6">Create or open share links with fewer clicks.</p>
+              </div>
+              <div className="feature-card">
+                <span className="pill">Preview</span>
+                <p className="detail mt-3 text-sm leading-6">Open images and videos in a focused viewer.</p>
+              </div>
+              <div className="feature-card">
+                <span className="pill">Upload</span>
+                <p className="detail mt-3 text-sm leading-6">Chunked uploads now show progress while they run.</p>
               </div>
             </div>
           </div>

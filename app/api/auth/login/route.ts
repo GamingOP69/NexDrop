@@ -17,6 +17,11 @@ import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
+function isPrismaUnavailable(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Can\'t reach database server') || message.includes('PrismaClientInitializationError');
+}
+
 async function bootstrapAdminResponse(requestId: string) {
   const accessToken = await signAccessToken({ sub: 'env-admin', role: 'ADMIN' });
   const refreshToken = await signRefreshToken({ sub: 'env-admin' });
@@ -207,6 +212,13 @@ export async function POST(req: NextRequest) {
     logServer('info', 'auth.login.success', { requestId, userId: user.id });
     return res;
   } catch (error) {
+    if (isPrismaUnavailable(error)) {
+      logServer('error', 'auth.login.database_unavailable', { requestId });
+      return NextResponse.json(
+        { error: 'Authentication service is temporarily unavailable. Please try again later.' },
+        { status: 503, headers: { 'x-request-id': requestId } }
+      );
+    }
     logServerError('auth.login.failed', error, { requestId });
     return NextResponse.json(
       { error: 'Authentication failed' },

@@ -26,7 +26,7 @@ export async function rateLimit(options: RateLimitOptions): Promise<RateLimitRes
   const redis = getRedis();
 
   try {
-    if (!redis) {
+    if (!redis || redis.status !== 'ready') {
       // Redis unavailable - fail open (allow request)
       return {
         success: true,
@@ -103,9 +103,9 @@ export async function rateLimitAuth(identifier: string): Promise<RateLimitResult
 export async function rateLimitUpload(userId: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `upload:${userId}`,
-    limit: 10,
+    limit: 3,
     window: 60,
-    message: 'Upload limit exceeded. Maximum 10 uploads per minute.'
+    message: 'Upload limit exceeded. Maximum 3 uploads per minute.'
   });
 }
 
@@ -116,7 +116,7 @@ export async function rateLimitUpload(userId: string): Promise<RateLimitResult> 
 export async function rateLimitDownload(ip: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `download:${ip}`,
-    limit: 50,
+    limit: 30,
     window: 300,
     message: 'Download limit exceeded. Too many downloads.'
   });
@@ -129,7 +129,7 @@ export async function rateLimitDownload(ip: string): Promise<RateLimitResult> {
 export async function rateLimitShareDownload(shareToken: string): Promise<RateLimitResult> {
   return rateLimit({
     key: `share-download:${shareToken}`,
-    limit: 100,
+    limit: 50,
     window: 600,
     message: 'Share link download limit exceeded.'
   });

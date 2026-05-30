@@ -36,7 +36,7 @@ const normalizeUrl = (value: unknown): string | undefined => {
   return trimmed;
 };
 
-const appUrlSchema = z.preprocess(normalizeUrl, z.string().url()).default('http://localhost:3000').transform((value) => {
+const appUrlSchema = z.preprocess(normalizeUrl, z.string().url().optional()).default('http://localhost:3000').transform((value) => {
   const url = new URL(value);
   if (url.pathname.endsWith('/')) url.pathname = url.pathname.slice(0, -1);
   return url.toString().replace(/\/$/, '');

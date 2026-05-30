@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { assembleChunks, cleanupChunks, finalFilePath, ensureStorage, userDir, writeChunk, uploadLocalToStore } from '@/lib/storage';
 import { env } from '@/lib/env';
 import utils from '@/lib/utils.js';
-import { uploadChunkSchema, mimeTypeSchema } from '@/lib/validation';
+import { uploadInitSanity } from '@/lib/validation';
 import { uploads } from '@/lib/metrics';
 import { rateLimitUpload } from '@/lib/rate-limit';
 import fs from 'fs/promises';
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const rateLimit = await rateLimitUpload(user.id);
     if (!rateLimit.success) {
       return NextResponse.json(
-        { error: 'Upload limit exceeded. Maximum 10 uploads per minute.' },
+        { error: 'Upload limit exceeded. Try again later.' },
         { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } }
       );
     }
@@ -50,9 +50,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing chunk file' }, { status: 400 });
     }
 
-    // Validate using schema
-    const validation = uploadChunkSchema.safeParse({
+    const validation = uploadInitSanity.safeParse({
       fileId,
+      fileName,
+      mimeType,
       chunkIndex,
       totalChunks,
       chunkSize: chunk.size,
@@ -64,22 +65,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
-    // Validate MIME type
-    const mimeValidation = mimeTypeSchema.safeParse(mimeType);
-    if (!mimeValidation.success) {
-      return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
-    }
-
     // Convert chunk to buffer
     const arrayBuffer = await chunk.arrayBuffer();
     const chunkSize = arrayBuffer.byteLength;
 
     // Validate chunk size
-    if (chunkSize > 10 * 1024 * 1024) {
+    if (chunkSize > env.CHUNK_SIZE) {
       return NextResponse.json(
-        { error: 'Chunk too large (max 10MB)' },
+        { error: 'Chunk too large (max 5MB)' },
         { status: 413 }
       );
+    }
+
+    const expectedChunkSize = chunkIndex === totalChunks - 1
+      ? totalSize - (chunkIndex * env.CHUNK_SIZE)
+      : env.CHUNK_SIZE;
+
+    if (chunkIndex < totalChunks - 1 && chunkSize !== env.CHUNK_SIZE) {
+      return NextResponse.json({ error: 'Invalid chunk size' }, { status: 400 });
+    }
+
+    if (chunkIndex === totalChunks - 1 && chunkSize > expectedChunkSize) {
+      return NextResponse.json({ error: 'Final chunk is larger than expected' }, { status: 400 });
+    }
+
+    const existingFile = await prisma.file.findUnique({ where: { id: fileId }, select: { userId: true } });
+    if (existingFile && existingFile.userId !== user.id) {
+      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    }
+
+    if (chunkIndex === 0 && !existingFile) {
+      await prisma.file.create({
+        data: {
+          id: fileId,
+          userId: user.id,
+          fileName: utils.safeFileName(fileName),
+          originalName: fileName,
+          mimeType: mimeType,
+          size: 0n,
+          storagePath: finalFilePath(user.id, fileId, fileName)
+        }
+      });
+      await fs.mkdir(userDir(user.id), { recursive: true });
     }
 
     // Check storage quota BEFORE adding file
@@ -110,24 +137,6 @@ export async function POST(req: NextRequest) {
 
     // Write chunk to disk
     const chunkPath = await writeChunk(fileId, chunkIndex, arrayBuffer);
-
-    // On first chunk, create file record
-    if (chunkIndex === 0) {
-      await prisma.file.upsert({
-        where: { id: fileId },
-        update: {},
-        create: {
-          id: fileId,
-          userId: user.id,
-          fileName: utils.safeFileName(fileName),
-          originalName: fileName,
-          mimeType: mimeType,
-          size: 0n,
-          storagePath: finalFilePath(user.id, fileId, fileName)
-        }
-      });
-      await fs.mkdir(userDir(user.id), { recursive: true });
-    }
 
     // Store chunk metadata
     await prisma.uploadChunk.upsert({
@@ -160,6 +169,13 @@ export async function POST(req: NextRequest) {
       // Get final file size
       const stat = await fs.stat(file.storagePath);
       const finalSize = BigInt(stat.size);
+
+      if (finalSize !== BigInt(totalSize)) {
+        await cleanupChunks(fileId);
+        await prisma.uploadChunk.deleteMany({ where: { fileId } });
+        await prisma.file.delete({ where: { id: fileId } }).catch(() => {});
+        return NextResponse.json({ error: 'Uploaded size mismatch' }, { status: 400 });
+      }
 
       // If S3 is enabled, upload final file to S3 and update storagePath
       let newStoragePath = file.storagePath;
