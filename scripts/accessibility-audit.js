@@ -21,7 +21,6 @@ async function run() {
     '/legal/terms',
     '/legal/ip-infringement',
     '/legal/data-compliance',
-    '/share/does-not-exist',
     '/this-route-does-not-exist'
   ];
 

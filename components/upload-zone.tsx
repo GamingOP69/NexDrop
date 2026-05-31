@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Upload, FolderOpen, Globe2 } from 'lucide-react';
 
 export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -96,14 +97,14 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
 
   return (
     <div className="section-card overflow-hidden p-0">
-      <div className="border-b border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--panel)_92%,white)] px-4 py-4 sm:px-6">
+      <div className="storage-banner border-b px-4 py-4 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
-            <p className="pill inline-flex w-fit">Media library upload</p>
-            <h2 className="title-md font-semibold">Upload files fast and track every chunk.</h2>
-            <p className="detail max-w-2xl text-sm leading-6">Drag a file in, or click to browse. Files are uploaded in chunks with live progress, quota checks, and CSRF protection.</p>
+            <p className="pill inline-flex w-fit border-[rgba(77,65,40,0.15)] bg-white text-[#4d4128]">Your storage is filling up. Upgrade for more space.</p>
+            <h2 className="title-md font-semibold text-[#4d4128]">Upload files fast and track every chunk.</h2>
+            <p className="detail max-w-2xl text-sm leading-6 text-[#4d4128]">Drag a file in, or click to browse. Files are uploaded in chunks with live progress, quota checks, and CSRF protection.</p>
           </div>
-          <div className="rounded-full border border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--accent)_12%,var(--panel))] px-3 py-2 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow)]">{busy ? phase : 'Ready'}</div>
+          <div className="rounded-full border border-[rgba(77,65,40,0.15)] bg-white px-3 py-2 text-sm font-medium text-[#4d4128]">{busy ? phase : 'Ready'}</div>
         </div>
       </div>
 
@@ -121,7 +122,7 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
             }
           }}
           aria-label="File upload dropzone"
-          className="upload-dropzone border border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_80%,white)] p-5 shadow-[var(--shadow)] transition-transform duration-200 hover:-translate-y-0.5 sm:p-6"
+          className="upload-dropzone border border-[color:var(--border)] bg-[color:var(--panel-strong)] p-5 transition-transform duration-200 hover:-translate-y-0.5 sm:p-6"
           aria-busy={busy}
         >
           <input id="file-input" aria-label="Choose a file to upload" className="sr-only" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
@@ -131,10 +132,10 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
                 <p className="title-sm font-semibold">Drop your file here</p>
                 <p className="detail mt-1 text-sm leading-6">Large uploads are chunked automatically and continue until the final file is assembled.</p>
               </div>
-              <span className="pill hidden sm:inline-flex">Max {Math.round(file ? file.size / 1024 / 1024 : 10)}MB chunked</span>
+              <span className="pill hidden sm:inline-flex border-white/10 bg-white/5 text-white">Max {Math.round(file ? file.size / 1024 / 1024 : 10)}MB chunked</span>
             </div>
 
-            <div className="rounded-[var(--radius-md)] border border-dashed border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--accent)_6%,transparent)] px-4 py-5 text-center">
+            <div className="rounded-[var(--radius-md)] border border-dashed border-[color:var(--border)] bg-[rgba(255,255,255,0.03)] px-4 py-5 text-center">
               {file ? (
                 <div className="space-y-1">
                   <p className="text-base font-semibold text-[color:var(--text)]">{file.name}</p>
@@ -155,7 +156,7 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
               </div>
               <div className="h-3 overflow-hidden rounded-full border border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_90%,white)]">
                 <div
-                  className="h-full rounded-full bg-[linear-gradient(90deg,var(--accent),color-mix(in_oklab,var(--accent)_70%,black))] transition-[width] duration-300"
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#0d7ef2,#3ddc84)] transition-[width] duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -165,6 +166,7 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
 
         <div className="flex flex-wrap items-center gap-3">
           <button disabled={!file || busy} className="btn btn-primary" onClick={uploadSelected} type="button">
+            <Upload className="h-4 w-4" aria-hidden="true" />
             {busy ? 'Uploading...' : 'Upload'}
           </button>
           <button
@@ -178,7 +180,12 @@ export function UploadZone({ onUploaded }: { onUploaded?: () => void }) {
               setPhase('Ready to upload');
             }}
           >
+            <FolderOpen className="h-4 w-4" aria-hidden="true" />
             Clear
+          </button>
+          <button type="button" className="btn btn-outline">
+            <Globe2 className="h-4 w-4" aria-hidden="true" />
+            Web Upload
           </button>
           <span className="text-sm text-[color:var(--muted)]">{status || phase}</span>
         </div>

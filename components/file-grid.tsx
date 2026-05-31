@@ -30,54 +30,54 @@ export function FileGrid({ files, onShare }: { files: FileItem[]; onShare?: (id:
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
-      {files.map((file) => (
-        <motion.div
-          key={file.id}
-          className="file-card overflow-hidden p-0"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28 }}
-        >
-          <div className="flex flex-col gap-4 p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--border)] bg-[color:color-mix(in_oklab,var(--accent)_10%,var(--panel-strong))] text-[color:var(--accent-strong)] shadow-[4px_4px_0_rgba(30,36,48,0.08)]">
-                  {getIcon(file.mimeType)}
-                </div>
-                <div className="min-w-0 space-y-1">
-                  <h3 className="truncate title-sm font-semibold">{file.originalName}</h3>
-                  <p className="truncate detail text-sm">{file.mimeType}</p>
-                  <p className="meta text-xs">Uploaded {new Date(file.createdAt).toLocaleString()}</p>
-                </div>
+    <div className="section-card overflow-hidden p-0">
+      <div className="hidden border-b border-[color:var(--border)] px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)] md:grid md:grid-cols-[minmax(0,1fr)_132px_108px_116px] md:items-center md:gap-3">
+        <div>File</div>
+        <div>Size</div>
+        <div>Date</div>
+        <div className="text-right">Actions</div>
+      </div>
+      <div>
+        {files.map((file) => (
+          <motion.div
+            key={file.id}
+            className="file-row"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.24 }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-[color:var(--border)] bg-[color:var(--panel-strong)] text-[color:var(--accent-strong)]">
+                {getIcon(file.mimeType)}
               </div>
-              <span className="pill shrink-0">{file.size}</span>
+              <div className="min-w-0">
+                <h3 className="truncate text-[0.82rem] font-semibold text-white">{file.originalName}</h3>
+                <p className="file-row__meta truncate">{file.mimeType} · Uploaded {new Date(file.createdAt).toLocaleDateString()}</p>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 border-t border-[color:var(--border)] pt-4">
-              <a aria-label={`Download ${file.originalName}`} className="btn btn-secondary btn-sm" href={`/api/files/${file.id}/download`}>
-                <Download className="h-4 w-4" />
-                Download
+            <div className="hidden text-[0.8rem] text-white md:block">{file.size}</div>
+            <div className="hidden text-[0.8rem] text-[color:var(--muted)] md:block">{new Date(file.createdAt).toLocaleDateString()}</div>
+            <div className="file-row__actions justify-self-end">
+              <a aria-label={`Download ${file.originalName}`} className="btn btn-secondary btn-sm px-3" href={`/api/files/${file.id}/download`}>
+                <Download className="h-3.5 w-3.5" />
               </a>
-              <button aria-label={`Preview ${file.originalName}`} className="btn btn-secondary btn-sm" onClick={() => { setPreview(file); setOpen(true); }} type="button">
-                <Eye className="h-4 w-4" />
-                Preview
+              <button aria-label={`Preview ${file.originalName}`} className="btn btn-secondary btn-sm px-3" onClick={() => { setPreview(file); setOpen(true); }} type="button">
+                <Eye className="h-3.5 w-3.5" />
               </button>
               {file.shareToken ? (
-                <a aria-label={`Open share for ${file.originalName}`} className="btn btn-secondary btn-sm" href={`/share/${file.shareToken}`}>
-                  <Link2 className="h-4 w-4" />
-                  Share
+                <a aria-label={`Open share for ${file.originalName}`} className="btn btn-secondary btn-sm px-3" href={`/share/${file.shareToken}`}>
+                  <Link2 className="h-3.5 w-3.5" />
                 </a>
               ) : null}
               {onShare ? (
-                <button aria-label={`Create share for ${file.originalName}`} className="btn btn-primary btn-sm" onClick={() => onShare(file.id)} type="button">
-                  <Link2 className="h-4 w-4" />
-                  Create share
+                <button aria-label={`Create share for ${file.originalName}`} className="btn btn-primary btn-sm px-3" onClick={() => onShare(file.id)} type="button">
+                  <Link2 className="h-3.5 w-3.5" />
                 </button>
               ) : null}
             </div>
-          </div>
-        </motion.div>
-      ))}
+          </motion.div>
+        ))}
+      </div>
       <PreviewModal file={preview} open={open} onClose={() => setOpen(false)} />
     </div>
   );

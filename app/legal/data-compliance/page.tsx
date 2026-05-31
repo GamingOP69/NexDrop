@@ -5,7 +5,7 @@ export default function DataCompliancePage() {
     <main className="page-shell stack-6">
       <header className="glass-nav card nav-shell">
         <Link href="/" className="flex items-center gap-3">
-          <span className="brand-mark">N</span>
+          <span className="brand-mark" aria-hidden="true">N</span>
           <span className="font-semibold tracking-tight">NexDrop</span>
         </Link>
         <div className="nav-links text-sm">

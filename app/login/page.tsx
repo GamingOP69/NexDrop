@@ -91,7 +91,7 @@ export default function LoginPage() {
           <button disabled={busy} className="btn btn-primary w-full" type="submit">{busy ? 'Signing in...' : 'Sign in'}</button>
           {showResend ? (
             <div className="pt-2">
-              <p className="detail text-sm">Didn't get the verification email?</p>
+              <p className="detail text-sm">Didn&apos;t get the verification email?</p>
               <button type="button" className="btn btn-outline mt-2" onClick={async () => {
                 try {
                   const res = await fetch('/api/auth/resend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
