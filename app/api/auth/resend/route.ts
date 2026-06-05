@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
-import { env } from '@/lib/env';
+import { getPublicOrigin } from '@/lib/env';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 import { logServer, logServerError } from '@/lib/logger';
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Queue verification email
     try {
-      const origin = env.APP_URL || new URL(req.url).origin;
+      const origin = getPublicOrigin(req);
       const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
       await queueEmail('verify-email', user.email, 'Verify your NexDrop account', { name: user.fullName || user.email, verifyUrl });
     } catch (err) {

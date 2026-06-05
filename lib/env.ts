@@ -36,7 +36,8 @@ const normalizeUrl = (value: unknown): string | undefined => {
   return trimmed;
 };
 
-const appUrlSchema = z.preprocess(normalizeUrl, z.string().url().optional()).default('http://localhost:3000').transform((value) => {
+const appUrlSchema = z.preprocess(normalizeUrl, z.string().url().optional()).transform((value) => {
+  if (!value) return '';
   const url = new URL(value);
   if (url.pathname.endsWith('/')) url.pathname = url.pathname.slice(0, -1);
   return url.toString().replace(/\/$/, '');
@@ -90,6 +91,17 @@ const envSchema = z.object({
 // Parse environment variables, but skip strict validation during build
 // Only validate at runtime when NEXDROP_RUNTIME=1 (set by serverless platform)
 export const env = envSchema.parse(process.env);
+
+export function getPublicOrigin(request?: Pick<Request, 'url'>) {
+  const configured = env.APP_URL || process.env.APP_URL || '';
+  if (configured) {
+    return configured.replace(/\/$/, '');
+  }
+  if (request?.url) {
+    return new URL(request.url).origin;
+  }
+  return 'http://localhost:3000';
+}
 
 export const isProd = env.NODE_ENV === 'production';
 export const isTest = env.NODE_ENV === 'test';

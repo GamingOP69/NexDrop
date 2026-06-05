@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test';
 import axe from 'axe-core';
 
 async function run() {
-  const baseUrl = process.argv[2] || 'http://127.0.0.1:3000';
+  const baseUrl = process.argv[2] || process.env.APP_URL || 'http://127.0.0.1:3000';
   const routes = [
     '/',
     '/login',

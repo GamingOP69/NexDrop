@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
 import { randomUUID } from 'node:crypto';
-import { env } from '@/lib/env';
+import { getPublicOrigin } from '@/lib/env';
 import { forgotPasswordSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
 
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     // Queue reset email
     try {
-      const origin = env.APP_URL || new URL(req.url).origin;
+      const origin = getPublicOrigin(req);
       const resetUrl = `${origin}/reset-password?token=${resetToken}`;
       await queueEmail('reset-password', email, 'Reset your NexDrop password', { name: user.fullName || email, resetUrl });
     } catch (emailError) {

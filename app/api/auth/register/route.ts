@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { queueEmail } from '@/lib/email';
-import { env } from '@/lib/env';
+import { env, getPublicOrigin } from '@/lib/env';
 import * as bcrypt from 'bcryptjs';
 import { registerSchema } from '@/lib/validation';
 import { rateLimitAuth, getClientIp } from '@/lib/rate-limit';
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     if (smtpConfigured) {
       try {
         // Prefer configured APP_URL from environment for links, fall back to request origin
-        const origin = env.APP_URL || new URL(req.url).origin;
+        const origin = getPublicOrigin(req);
         const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
         await queueEmail('verify-email', email, 'Verify your NexDrop account', { name: email, verifyUrl });
       } catch (emailError) {
