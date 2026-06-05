@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-const baseEnv = {
+const baseEnv: Record<string, string> = {
   NODE_ENV: 'test',
   APP_URL: 'http://localhost:3000',
   JWT_ACCESS_SECRET: 'a'.repeat(32),
@@ -64,10 +64,7 @@ vi.mock('fs/promises', () => ({
 }));
 
 afterEach(() => {
-  process.env = {
-    ...process.env,
-    ...baseEnv
-  };
+  Object.assign(process.env, baseEnv);
   rpushMock.mockReset();
   publishMock.mockReset();
   sendMailMock.mockReset();
@@ -76,10 +73,7 @@ afterEach(() => {
 
 describe('email queue fallback', () => {
   it('sends directly when SMTP is available and the queue is enabled', async () => {
-    process.env = {
-      ...process.env,
-      ...baseEnv
-    };
+    Object.assign(process.env, baseEnv);
 
     vi.resetModules();
     const { queueEmail } = await import('../lib/email');
@@ -93,10 +87,7 @@ describe('email queue fallback', () => {
   });
 
   it('queues when direct delivery fails', async () => {
-    process.env = {
-      ...process.env,
-      ...baseEnv
-    };
+    Object.assign(process.env, baseEnv);
 
     sendMailMock.mockRejectedValueOnce(new Error('smtp unavailable'));
 
