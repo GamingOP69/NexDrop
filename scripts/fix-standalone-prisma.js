@@ -39,17 +39,17 @@ async function main() {
     if (aliasName) break;
   }
 
-  if (!aliasName) return;
+  if (aliasName) {
+    const aliasPath = path.join(standaloneNodeModules, aliasName);
+    const targetPath = path.join(standaloneNodeModules, '@prisma/client');
 
-  const aliasPath = path.join(standaloneNodeModules, aliasName);
-  const targetPath = path.join(standaloneNodeModules, '@prisma/client');
+    await fs.mkdir(path.dirname(aliasPath), { recursive: true });
+    try {
+      await fs.rm(aliasPath, { recursive: true, force: true });
+    } catch {}
 
-  await fs.mkdir(path.dirname(aliasPath), { recursive: true });
-  try {
-    await fs.rm(aliasPath, { recursive: true, force: true });
-  } catch {}
-
-  await fs.symlink(path.relative(path.dirname(aliasPath), targetPath), aliasPath, 'dir');
+    await fs.symlink(path.relative(path.dirname(aliasPath), targetPath), aliasPath, 'dir');
+  }
 
   // Ensure static assets are present in the standalone bundle so the server can
   // serve CSS/fonts/images when the standalone folder is deployed alone.
