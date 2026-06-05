@@ -71,6 +71,8 @@ const envSchema = z.object({
   SENTRY_ENVIRONMENT: z.preprocess(normalizeString, z.string()).default('development'),
   EMAIL_QUEUE_ENABLED: z.preprocess(normalizeBoolean, z.boolean()).default(false),
   EMAIL_QUEUE_RETRIES: z.preprocess(normalizeNumber, z.number().int().nonnegative()).default(3),
+  EMAIL_DIRECT_CONCURRENCY_LIMIT: z.preprocess(normalizeNumber, z.number().int().positive()).default(4),
+  EMAIL_QUEUE_FAILOVER_COOLDOWN_MS: z.preprocess(normalizeNumber, z.number().int().nonnegative()).default(30000),
   RABBITMQ_URL: z.preprocess(normalizeString, z.string().optional()).default(''),
   RABBITMQ_HOST: z.preprocess(normalizeString, z.string().optional()).default(''),
   RABBITMQ_PORT: z.preprocess(normalizeNumber, z.number().int().positive()).default(5672),

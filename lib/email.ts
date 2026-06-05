@@ -21,6 +21,30 @@ async function createTransport() {
   });
 }
 
+function hasSmtpConfiguration() {
+  return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
+}
+
+let activeDirectEmailSends = 0;
+let directEmailFailoverUntil = 0;
+
+async function queueEmailJob(job: EmailQueueJob): Promise<boolean> {
+  if (isRabbitMqConfigured()) {
+    try {
+      const enqueued = await publishRabbitMqMessage(EMAIL_QUEUE_NAME, { job, attempts: 0 });
+      if (enqueued) return true;
+    } catch (error) {
+      console.error('RabbitMQ enqueue failed, falling back to Redis', error);
+    }
+  }
+
+  const redis = getRedis();
+  if (!redis) return false;
+
+  await redis.rpush('email:queue', JSON.stringify({ job, attempts: 0 }));
+  return true;
+}
+
 export async function sendEmail(mail: Mail) {
   const transport = await createTransport();
   if (!transport) {
@@ -48,7 +72,6 @@ export async function renderTemplate(name: string, vars: Record<string, any>) {
 
 // Queueing
 export async function queueEmail(templateName: string, to: string, subject: string, vars: Record<string, any> = {}) {
-  // If queue disabled, render and send immediately
   const body = await renderTemplate(templateName, vars);
   const job = { to, subject, html: body };
 
@@ -57,23 +80,30 @@ export async function queueEmail(templateName: string, to: string, subject: stri
     return;
   }
 
-  if (isRabbitMqConfigured()) {
+  const canSendDirectly = hasSmtpConfiguration() && Date.now() >= directEmailFailoverUntil && activeDirectEmailSends < env.EMAIL_DIRECT_CONCURRENCY_LIMIT;
+
+  if (canSendDirectly) {
+    activeDirectEmailSends += 1;
     try {
-      const enqueued = await publishRabbitMqMessage(EMAIL_QUEUE_NAME, { job, attempts: 0 });
-      if (enqueued) return;
+      await sendEmail(job);
+      return;
     } catch (error) {
-      console.error('RabbitMQ enqueue failed, falling back to Redis', error);
+      directEmailFailoverUntil = Date.now() + env.EMAIL_QUEUE_FAILOVER_COOLDOWN_MS;
+      console.error('Direct email send failed, queueing job', error);
+    } finally {
+      activeDirectEmailSends -= 1;
     }
   }
 
-  const redis = getRedis();
-  if (!redis) {
-    // fallback to immediate send
+  const queued = await queueEmailJob({ job, attempts: 0 });
+  if (queued) return;
+
+  if (!canSendDirectly && hasSmtpConfiguration()) {
     await sendEmail(job);
     return;
   }
 
-  await redis.rpush('email:queue', JSON.stringify({ job, attempts: 0 }));
+  throw new Error('Email delivery failed and no queue backend was available');
 }
 
 export type EmailQueueJob = { job: Mail; attempts: number };
