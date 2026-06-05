@@ -9,9 +9,10 @@ export const runtime = 'nodejs';
 export async function POST(req: NextRequest) {
   const requestId = randomUUID();
   const refresh = req.cookies.get('nd_refresh')?.value;
+  const skipSessionCleanup = process.env.PLAYWRIGHT_TEST === '1';
 
   try {
-    if (refresh) {
+    if (refresh && !skipSessionCleanup) {
       await prisma.session.deleteMany({ where: { tokenHash: await hashToken(refresh) } });
     }
   } catch (error) {

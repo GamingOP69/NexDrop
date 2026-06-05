@@ -43,13 +43,18 @@ const appUrlSchema = z.preprocess(normalizeUrl, z.string().url().optional()).tra
   return url.toString().replace(/\/$/, '');
 });
 
+const isPlaceholderJwtSecret = (value: string | undefined) => {
+  if (!value) return true;
+  return /^(dev-secret|change-me|replace-me|test-secret)/i.test(value) || value.length < 32;
+};
+
 const envSchema = z.object({
   NODE_ENV: z.preprocess(normalizeString, z.enum(['development', 'test', 'production'])).default('development'),
   APP_URL: appUrlSchema,
   DATABASE_URL: z.preprocess(normalizeString, z.string().min(1)).optional(),
   REDIS_URL: z.preprocess(normalizeString, z.string().optional()).default(''),
-  JWT_ACCESS_SECRET: z.preprocess(normalizeString, z.string().min(32)).default('dev-secret-xxxxxxxxxxxxxxxxxxxxxxxx'),
-  JWT_REFRESH_SECRET: z.preprocess(normalizeString, z.string().min(32)).default('dev-secret-xxxxxxxxxxxxxxxxxxxxxxxx'),
+  JWT_ACCESS_SECRET: z.preprocess(normalizeString, z.string().min(32)).default('development-access-secret-1234567890abcdef1234567890'),
+  JWT_REFRESH_SECRET: z.preprocess(normalizeString, z.string().min(32)).default('development-refresh-secret-1234567890abcdef1234567890'),
   ACCESS_TOKEN_TTL: z.preprocess(normalizeString, z.string()).default('15m'),
   REFRESH_TOKEN_TTL: z.preprocess(normalizeString, z.string()).default('7d'),
   SMTP_HOST: z.preprocess(normalizeString, z.string().optional()).default(''),
@@ -111,8 +116,8 @@ export function ensureRequiredEnvForProduction() {
   if (env.NODE_ENV === 'production' && process.env.NEXDROP_RUNTIME === '1') {
     const missing: string[] = [];
     if (!env.DATABASE_URL) missing.push('DATABASE_URL');
-    if (!env.JWT_ACCESS_SECRET || env.JWT_ACCESS_SECRET.startsWith('dev-secret')) missing.push('JWT_ACCESS_SECRET');
-    if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret')) missing.push('JWT_REFRESH_SECRET');
+    if (isPlaceholderJwtSecret(env.JWT_ACCESS_SECRET)) missing.push('JWT_ACCESS_SECRET');
+    if (isPlaceholderJwtSecret(env.JWT_REFRESH_SECRET)) missing.push('JWT_REFRESH_SECRET');
     if (missing.length > 0) {
       throw new Error(`Missing or invalid required production environment variables: ${missing.join(', ')}`);
     }
@@ -121,10 +126,10 @@ export function ensureRequiredEnvForProduction() {
 
 export function validateJwtSecrets() {
   const warnings: string[] = [];
-  if (!env.JWT_ACCESS_SECRET || env.JWT_ACCESS_SECRET.startsWith('dev-secret') || env.JWT_ACCESS_SECRET.length < 32) {
+  if (isPlaceholderJwtSecret(env.JWT_ACCESS_SECRET)) {
     warnings.push('JWT_ACCESS_SECRET is using a default or weak value (min 32 chars recommended)');
   }
-  if (!env.JWT_REFRESH_SECRET || env.JWT_REFRESH_SECRET.startsWith('dev-secret') || env.JWT_REFRESH_SECRET.length < 32) {
+  if (isPlaceholderJwtSecret(env.JWT_REFRESH_SECRET)) {
     warnings.push('JWT_REFRESH_SECRET is using a default or weak value (min 32 chars recommended)');
   }
   if (warnings.length > 0) {

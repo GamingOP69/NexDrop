@@ -64,9 +64,8 @@ export async function hashToken(token: string) {
 export function authCookieOptions(kind: 'access' | 'refresh', maxAgeSeconds: number) {
   const cookieDomain = (() => {
     try {
-      const url = new URL(env.APP_URL);
-      // Only set domain for non-localhost hostnames in production
-      if (process.env.NODE_ENV === 'production' && url.hostname && !url.hostname.includes('localhost')) return url.hostname;
+      const url = new URL(env.APP_URL || 'http://127.0.0.1:3000');
+      if (url.hostname && url.hostname !== 'localhost') return url.hostname;
     } catch {
       // ignore
     }

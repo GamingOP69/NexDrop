@@ -1,7 +1,9 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 
-const baseUrl = process.env.APP_URL || 'http://127.0.0.1:3000';
+const baseUrl = (process.env.APP_URL || 'http://127.0.0.1:3000')
+  .replace('localhost', '127.0.0.1')
+  .replace(/\/+$/, '');
 
 const config: PlaywrightTestConfig = {
   testDir: './tests/e2e',
