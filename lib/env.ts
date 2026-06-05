@@ -130,7 +130,8 @@ export function validateJwtSecrets() {
   if (warnings.length > 0) {
     if (env.NODE_ENV === 'production') {
       throw new Error(`Invalid JWT secrets: ${warnings.join('; ')}`);
-    } else {
+    }
+    if (env.NODE_ENV !== 'test') {
       console.warn('Environment JWT secret warnings:', warnings.join('; '));
     }
   }

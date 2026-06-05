@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.stubEnv('JWT_ACCESS_SECRET', 'test-access-secret-12345678901234567890');
+vi.stubEnv('JWT_REFRESH_SECRET', 'test-refresh-secret-12345678901234567890');
+
 // Mock utils default export
 vi.mock('../lib/utils.js', () => ({
   default: {
