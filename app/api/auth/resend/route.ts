@@ -9,8 +9,33 @@ import { logServer, logServerError } from '@/lib/logger';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const email = (body?.email || '').toLowerCase().trim();
+  // Accept JSON or form submissions (for non-JS / noscript fallback)
+  let body: any = {};
+  try {
+    body = await req.json().catch(() => ({}));
+  } catch (e) {
+    body = {};
+  }
+
+  // If no email found in JSON, try parsing form data or urlencoded body
+  let email = (body?.email || '').toLowerCase().trim();
+  if (!email) {
+    try {
+      const form = await req.formData().catch(() => null);
+      if (form && form.get('email')) {
+        email = String(form.get('email')).toLowerCase().trim();
+      }
+    } catch (e) {
+      // fallback to urlencoded parsing
+      try {
+        const text = await req.text();
+        const params = new URLSearchParams(text);
+        if (params.has('email')) email = params.get('email')?.toLowerCase().trim() || '';
+      } catch (e2) {
+        // ignore
+      }
+    }
+  }
   const requestId = randomUUID();
 
   try {

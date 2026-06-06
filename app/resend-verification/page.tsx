@@ -43,7 +43,7 @@ export default function ResendVerificationPage() {
         </p>
       )}
     >
-      <form onSubmit={submit} className="space-y-4">
+      <form action="/api/auth/resend" method="post" onSubmit={submit} className="space-y-4">
         <div className="stack-4">
           <label className="sr-only" htmlFor="email">Email</label>
           <input id="email" name="email" type="email" autoComplete="email" required className="field" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
