@@ -37,6 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Inline minimal SVG favicon to avoid missing /favicon.ico on platforms */}
+        <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231b2430'/><text x='50' y='55' font-size='48' fill='%23ffffff' font-family='Arial' text-anchor='middle'>ND</text></svg>" />
         <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
         <meta name="color-scheme" content="light dark" />
